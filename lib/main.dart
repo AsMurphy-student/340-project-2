@@ -23,12 +23,44 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<dynamic> data;
-  late List<String> breeds;
+  // late List<dynamic> data;
+  List<String> breeds = [];
 
   String selectedBreed = '';
 
-  Future<void> getGifs(bool start) async {
+  Future<void> getBreeds() async {
+    // Set appropriate fetch url
+    String fetchURL = "https://dog.ceo/api/breeds/list";
+
+    // Get response and assign variables accordingly
+    var response = await http.get(Uri.parse(fetchURL));
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['status'] == 'success') {
+        List<dynamic> data = jsonResponse['message'];
+        setState(() {
+          breeds = data.map((element) => element.toString()).toList();
+          selectedBreed = breeds[0];
+        });
+      }
+      // data = jsonResponse['data'];
+      // print(jsonResponse['message']);
+      // List<dynamic> data = jsonResponse['message'].map(
+      //   (element) => {print(element)},
+      // );
+      // List<dynamic> data = jsonResponse['message'];
+      // print(data);
+
+      // setState(() {
+
+      // });
+    } else {
+      print("Theres a problem: ${response.statusCode}");
+    }
+  }
+
+  Future<void> getImages(bool start) async {
     // Set appropriate fetch url
     // String fetchURL =
     // "https://api.giphy.com/v1/gifs/search"
@@ -51,6 +83,16 @@ class _HomeState extends State<Home> {
     // }
   }
 
+  Future<void> initFunc() async {
+    await getBreeds();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initFunc();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,14 +105,19 @@ class _HomeState extends State<Home> {
                   value: selectedBreed,
                   // hint: Text("Rating (allows set rating and below)"),
                   icon: const Icon(Icons.arrow_downward),
-                  items: <String>['', 'g', 'pg', 'pg-13', 'r']
-                      .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      })
-                      .toList(),
+                  items: breeds.isNotEmpty
+                      ? breeds.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList()
+                      : [''].map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                   onChanged: (String? newValue) {
                     // setState(() {
                     //   rating = newValue!;
@@ -78,6 +125,7 @@ class _HomeState extends State<Home> {
                     print(newValue);
                   },
                 ),
+                // Text(breeds.isNotEmpty ? breeds.join(' ') : ''),
               ],
             ),
           ],
