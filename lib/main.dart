@@ -26,7 +26,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // late List<dynamic> data;
   List<String> mainBreeds = [];
   List<String> subBreeds = [];
   List<String> results = [];
@@ -36,6 +35,24 @@ class _HomeState extends State<Home> {
 
   int numOfResults = 5;
   int currentNumOfResults = 5;
+
+  late SharedPreferences myPrefs;
+
+  Future<void> initPrefs() async =>
+      myPrefs = await SharedPreferences.getInstance();
+
+  Future<void> saveNumOfResults() async =>
+      await myPrefs.setInt("numOfResults", numOfResults);
+
+  Future<void> loadNumOfResults() async => setState(() {
+    numOfResultsController.text = myPrefs.getInt('numOfResults') != null
+        ? myPrefs.getInt('numOfResults').toString()
+        : '5';
+    numOfResults = myPrefs.getInt('numOfResults') != null
+        ? myPrefs.getInt('numOfResults')!
+        : 5;
+    currentNumOfResults = numOfResults;
+  });
 
   final TextEditingController numOfResultsController = TextEditingController(
     text: '5',
@@ -54,17 +71,6 @@ class _HomeState extends State<Home> {
           selectedBreed = mainBreeds[0];
         });
       }
-      // data = jsonResponse['data'];
-      // print(jsonResponse['message']);
-      // List<dynamic> data = jsonResponse['message'].map(
-      //   (element) => {print(element)},
-      // );
-      // List<dynamic> data = jsonResponse['message'];
-      // print(data);
-
-      // setState(() {
-
-      // });
     } else {
       print("Theres a problem: ${response.statusCode}");
     }
@@ -87,17 +93,6 @@ class _HomeState extends State<Home> {
           selectedSubBreed = subBreeds.isNotEmpty ? subBreeds[0] : 'N/A';
         });
       }
-      // data = jsonResponse['data'];
-      // print(jsonResponse['message']);
-      // List<dynamic> data = jsonResponse['message'].map(
-      //   (element) => {print(element)},
-      // );
-      // List<dynamic> data = jsonResponse['message'];
-      // print(data);
-
-      // setState(() {
-
-      // });
     } else {
       print("Theres a problem: ${response.statusCode}");
     }
@@ -123,25 +118,8 @@ class _HomeState extends State<Home> {
           }
           currentNumOfResults = numOfResults;
         });
-        // setState(() {
-        //   results = data
-        //       .map((element) => {element.toString()})
-        //       .cast<String>()
-        //       .toList();
-        // });
-        // print(results);
+        await saveNumOfResults();
       }
-      // data = jsonResponse['data'];
-      // print(jsonResponse['message']);
-      // List<dynamic> data = jsonResponse['message'].map(
-      //   (element) => {print(element)},
-      // );
-      // List<dynamic> data = jsonResponse['message'];
-      // print(data);
-
-      // setState(() {
-
-      // });
     } else {
       print("Theres a problem: ${response.statusCode}");
     }
@@ -156,6 +134,8 @@ class _HomeState extends State<Home> {
 
   Future<void> initFunc() async {
     await getBreeds("https://dog.ceo/api/breeds/list");
+    await initPrefs();
+    await loadNumOfResults();
   }
 
   @override
@@ -167,6 +147,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Project 2 Dog API")),
       body: Center(
         child: Column(
           children: [
