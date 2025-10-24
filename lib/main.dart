@@ -206,8 +206,12 @@ class _HomeState extends State<Home> {
                     });
                   },
                 ),
-                SizedBox(
-                  width: 200,
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
                   child: TextField(
                     controller: numOfResultsController,
                     decoration: InputDecoration(
