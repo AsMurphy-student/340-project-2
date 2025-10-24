@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MainApp());
@@ -253,11 +255,21 @@ class _HomeState extends State<Home> {
                 ),
                 itemCount: currentNumOfResults,
                 itemBuilder: (context, index) {
-                  return Image.network(
-                    results.isNotEmpty
+                  // return Image.network(
+                  //   results.isNotEmpty
+                  //       ? results[index]
+                  //       : 'https://placehold.co/400.png',
+                  //   fit: BoxFit.cover,
+                  // );
+                  return CachedNetworkImage(
+                    imageUrl: results.isNotEmpty
                         ? results[index]
                         : 'https://placehold.co/400.png',
                     fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                   );
                 },
               ),
